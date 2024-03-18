@@ -42,12 +42,12 @@ def detect_cfl(selected_image):
     data = json.dumps({"signature_name": "serving_default", "instances": image_array.tolist()})
 
     # # Sending POST request to TensorFlow Serving API
-    url = "http://localhost:8501/v1/models/saved_model:predict"
+    url = "http://localhost:8501/v1/models/core_model:predict"
     headers = {"content-type": "application/json"}
     response = requests.post(url, data=data, headers=headers)
     predictions = response.json()['predictions']
     predictions_array = np.array(predictions)
-    threshold = 0.7
+    threshold = 0.9
     predictions_array[predictions_array>=threshold] = 1
     predictions_array[predictions_array<threshold] = 0
     predictions_array = predictions_array.reshape(256,256)
@@ -56,10 +56,32 @@ def detect_cfl(selected_image):
     return core_seg_output_image
 
 # Function to perform wall edge detection
-def detect_wall_edge(input_image):
+def detect_wall_edge(selected_image):
     # Perform wall edge detection on the provided image
-    # Replace this with your wall edge detection logic
-    return input_image
+
+    input_image = Image.open(selected_image).convert("RGB").resize((256, 256))
+
+    image_array1 = np.array(input_image)
+    image_array=np.expand_dims(image_array1,axis=0)
+
+    # Creating JSON data for the request
+    data = json.dumps({"signature_name": "serving_default", "instances": image_array.tolist()})
+
+    # # Sending POST request to TensorFlow Serving API
+    url = "http://localhost:8502/v1/models/wall_model:predict"
+    headers = {"content-type": "application/json"}
+    response = requests.post(url, data=data, headers=headers)
+    # return selected_image
+    predictions = response.json()['predictions']
+    predictions_array = np.array(predictions)
+    threshold = 0.5
+    predictions_array[predictions_array>=threshold] = 1
+    predictions_array[predictions_array<threshold] = 0
+    predictions_array = predictions_array.reshape(256,256)
+
+    wall_output_image = Image.fromarray((predictions_array * 255).astype(np.uint8))
+    return wall_output_image
+
 
 # Function to display images based on dropdown selection
 def display_images(selected_image):
@@ -110,10 +132,14 @@ with col3:
                 
     for file in uploaded_files:
         core_seg_output_image = detect_cfl(file)
-        core_seg_output_image.save(os.path.join(os.curdir+"/output/",file.name))
+        wall_edge_output_image = detect_wall_edge(file)
 
-        # TODO: Wall Edge Detection
-        wall_edge_output_image = Image.open(file).resize((256,256))
+
+        core_seg_output_image.save(os.path.join(os.curdir+"/output/","core_"+file.name))
+        wall_edge_output_image.save(os.path.join(os.curdir+"/output/","wall_"+file.name))
+
+        # # TODO: Wall Edge Detection
+        # wall_edge_output_image = Image.open(file).resize((256,256))
 
 
 col5, col6, col7 = st.columns(3)

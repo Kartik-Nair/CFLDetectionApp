@@ -41,6 +41,7 @@ with col2:
         if file:
             uploaded_files.append(file)        
     elif input_type == "Batch Images":
+        # uploaded_files = st.file_uploader("Choose input folder: ", accept_multiple_files=True, type='zip')
         uploaded_files = st.file_uploader("Choose input folder: ", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
     elif input_type == "Video":
         uploaded_files.append(st.file_uploader("Choose a video...", type=['mp4', 'mov', 'avi', 'mkv']))

@@ -21,6 +21,8 @@ git clone https://github.com/tensorflow/serving
 
 docker run -p 8501:8501 --name=tf_serving_container --mount type=bind,source=C:\Users\kgrna\Downloads\model,target=/models/saved_model -e MODEL_NAME=saved_model -t tensorflow/serving
 
+docker run -p 8501:8501 --name=tf_serving_container --mount type=bind,source=C:\Users\Admin\CFLDetectionApp\models\core_model,target=/models/core_model -e MODEL_NAME=core_model -t tensorflow/serving
+
 ## Run streamlit application on 8080 port
 
 streamlit run app.py --server.port 8080

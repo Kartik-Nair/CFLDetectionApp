@@ -1,0 +1,7 @@
+models/
+test_data/
+*.jpg
+*.png
+*.pyc
+output/
+*.csv

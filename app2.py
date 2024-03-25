@@ -87,12 +87,10 @@ def display_images(selected_image):
         st.image(wall_edge_output_image, use_column_width=True)
 
 
-# Buttons for selecting input image/video
+# Buttons for selecting input image
 col1, col2 = st.columns(2)
 with col1:
-    input_type = st.radio(
-        "Select Input Type:", ("Single Image", "Batch Images", "Video")
-    )
+    input_type = st.radio("Select Input Type:", ("Single Image", "Batch Images"))
 
 with col2:
     if input_type in "Single Image":
@@ -104,10 +102,6 @@ with col2:
             "Choose input folder: ",
             accept_multiple_files=True,
             type=["jpg", "jpeg", "png"],
-        )
-    elif input_type == "Video":
-        uploaded_files.append(
-            st.file_uploader("Choose a video...", type=["mp4", "mov", "avi", "mkv"])
         )
 
 
@@ -127,9 +121,6 @@ with col3:
         core_seg_output_image.save(output_dir + "wall_" + file.name)
         output_dir_wall = os.path.join(os.curdir + "/output/", "wall_")
         wall_edge_output_image.save(output_dir + "wall_" + file.name)
-
-        # # TODO: Wall Edge Detection
-        # wall_edge_output_image = Image.open(file).resize((256,256))
 
 
 col5, col6, col7 = st.columns(3)

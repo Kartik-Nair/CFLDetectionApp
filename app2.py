@@ -1,3 +1,4 @@
+import csv
 import streamlit as st
 import requests
 import json
@@ -5,6 +6,7 @@ from PIL import Image
 import os
 import numpy as np
 
+from distance_calculator import calculate_distance
 from wall_detector import detect_wall_edge
 
 # Inject custom CSS with st.markdown to change the button color
@@ -32,6 +34,8 @@ st.header("CFL Detection App")
 core_seg_output_image = None
 wall_edge_output_image = None
 uploaded_files = []
+
+resized_image_shape = (256, 256)
 
 
 # Function to perform CFL detection
@@ -63,27 +67,41 @@ def detect_cfl(selected_image):
     return core_seg_output_image
 
 
+def calculate_distance_and_write_csv(
+    core_seg_output_image,
+    first_white_pixels_wall,
+    last_white_pixels_wall,
+    input_image_dims,
+    mode,
+):
+    distance = calculate_distance(
+        np.array(core_seg_output_image), first_white_pixels_wall, last_white_pixels_wall
+    )
+    adjusted_distance = (distance / resized_image_shape[1]) * input_image_dims[1]
+    print(adjusted_distance)
+    csv_file_path = os.path.join(os.curdir + "/output/output.csv")
+    with open(csv_file_path, mode=mode, newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(adjusted_distance)
+
+
 # Function to display images based on dropdown selection
 def display_images(selected_image):
-
+    core_seg_output_image = detect_cfl(selected_image)
+    wall_edge_output_image, _, _ = detect_wall_edge(selected_image)
     with col5:
         # Display input image
         # input_image_path = os.path.join(os.curdir, "input", selected_image)
         st.write("INPUT IMAGE")
-        input_image = Image.open(selected_image).convert("RGB").resize((256, 256))
         st.image(input_image, use_column_width=True)
-
     with col6:
         # Perform CFL detection
         st.write("CORE SEGMENTATION")
-
-        core_seg_output_image = detect_cfl(selected_image)
         st.image(core_seg_output_image, use_column_width=True)
 
     with col7:
         # Perform wall edge detection
         st.write("WALL EDGE DETECTION")
-        wall_edge_output_image = detect_wall_edge(selected_image)[0]
         st.image(wall_edge_output_image, use_column_width=True)
 
 
@@ -113,14 +131,26 @@ with col3:
     #     st.write("CFL Detection Initiated...")
 
     for file in uploaded_files:
+        input_image = Image.open(file).convert("RGB")
+        input_image_dims = input_image.size
+        input_image = input_image.resize((256, 256))
         core_seg_output_image = detect_cfl(file)
-        wall_edge_output_image = detect_wall_edge(file)[0]
+        wall_edge_output_image, first_white_pixels_wall, last_white_pixels_wall = (
+            detect_wall_edge(file)
+        )
         output_dir = os.path.join(os.curdir + "/output/")
-        if not os.path.exists(output_dir + "wall_"):
-            os.makedirs(output_dir + "wall_", mode=0o077)
-        core_seg_output_image.save(output_dir + "wall_" + file.name)
-        output_dir_wall = os.path.join(os.curdir + "/output/", "wall_")
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir, mode=0o077)
+        calculate_distance_and_write_csv(
+            core_seg_output_image,
+            first_white_pixels_wall,
+            last_white_pixels_wall,
+            input_image_dims,
+            "a+",
+        )
+        core_seg_output_image.save(output_dir + "core_" + file.name)
         wall_edge_output_image.save(output_dir + "wall_" + file.name)
+    print("new")
 
 
 col5, col6, col7 = st.columns(3)

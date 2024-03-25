@@ -78,7 +78,6 @@ def calculate_distance_and_write_csv(
         np.array(core_seg_output_image), first_white_pixels_wall, last_white_pixels_wall
     )
     adjusted_distance = (distance / resized_image_shape[1]) * input_image_dims[1]
-    print(adjusted_distance)
     csv_file_path = os.path.join(os.curdir + "/output/output.csv")
     with open(csv_file_path, mode=mode, newline="") as file:
         writer = csv.writer(file)
@@ -150,7 +149,6 @@ with col3:
         )
         core_seg_output_image.save(output_dir + "core_" + file.name)
         wall_edge_output_image.save(output_dir + "wall_" + file.name)
-    print("new")
 
 
 col5, col6, col7 = st.columns(3)

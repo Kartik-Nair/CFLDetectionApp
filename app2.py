@@ -68,7 +68,7 @@ def detect_wall_edge(selected_image):
     data = json.dumps({"signature_name": "serving_default", "instances": image_array.tolist()})
 
     # # Sending POST request to TensorFlow Serving API
-    url = "http://localhost:8502/v1/models/wall_model:predict"
+    url = "http://localhost:8502/v2/models/wall_model:predict"
     headers = {"content-type": "application/json"}
     response = requests.post(url, data=data, headers=headers)
     # return selected_image
@@ -80,6 +80,7 @@ def detect_wall_edge(selected_image):
     predictions_array = predictions_array.reshape(256,256)
 
     wall_output_image = Image.fromarray((predictions_array * 255).astype(np.uint8))
+    # wall_output_image = wall_output_image.resize((256,64))
     return wall_output_image
 
 

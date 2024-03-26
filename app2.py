@@ -1,14 +1,18 @@
 import csv
 import streamlit as st
 import requests
+import sys
 import json
 from PIL import Image
 import os
 import numpy as np
 
 from distance_calculator import calculate_distance
+from docker_utils import start_docker, cleanup
 from wall_detector import detect_wall_edge
 
+
+start_docker()
 # Inject custom CSS with st.markdown to change the button color
 st.markdown(
     """
@@ -171,3 +175,8 @@ else:
 # Display images based on selected image
 if selected_image:
     display_images(selected_image)
+
+
+if st.button("Clean container for exit"):
+    cleanup()
+    sys.exit()

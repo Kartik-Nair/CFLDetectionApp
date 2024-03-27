@@ -12,7 +12,7 @@ from docker_utils import start_docker, cleanup
 from wall_detector import detect_wall_edge
 
 
-start_docker()
+# start_docker()
 # Inject custom CSS with st.markdown to change the button color
 st.markdown(
     """
@@ -177,6 +177,6 @@ if selected_image:
     display_images(selected_image)
 
 
-if st.button("Clean container for exit"):
-    cleanup()
-    sys.exit()
+# if st.button("Clean container for exit"):
+#     cleanup()
+#     sys.exit()

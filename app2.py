@@ -57,9 +57,12 @@ def detect_cfl(selected_image):
     )
 
     # # Sending POST request to TensorFlow Serving API
-    url = "http://localhost:8501/v1/models/core_model:predict"
+    # url = "http://localhost:8501/v1/models/core_model:predict"
+    # url = "https://cfl-detection-backend.azurewebsites.net/v1/models/core_model:predict"
+    url = "http://20.116.219.85:8501/v1/models/core_model:predict"
     headers = {"content-type": "application/json"}
     response = requests.post(url, data=data, headers=headers)
+    print(response)
     predictions = response.json()["predictions"]
     predictions_array = np.array(predictions)
     threshold = 0.9
@@ -135,6 +138,7 @@ with col3:
 
     for file in uploaded_files:
         input_image = Image.open(file).convert("RGB")
+        print(input_image)
         input_image_dims = input_image.size
         input_image = input_image.resize((256, 256))
         core_seg_output_image = detect_cfl(file)
